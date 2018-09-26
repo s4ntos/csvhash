@@ -17,10 +17,19 @@ func check(e error) {
 }
 
 func main() {
-	// salt := "This is salt"
-	fin, err := os.Open(os.Args[1])
+	salt := "This is salt"
+	columns := []int{}
+	switch fileType := os.Args[1]; fileType {
+	case "csv3":
+		columns = []int{2, 3, 4}
+	case "csv2":
+		columns = []int{2, 3}
+	default:
+		columns = []int{2}
+	}
+	fin, err := os.Open(os.Args[2])
 	check(err)
-	fout, err := os.Create(os.Args[2])
+	fout, err := os.Create(os.Args[3])
 	check(err)
 	r := csv.NewReader(bufio.NewReader(fin))
 	w := csv.NewWriter(bufio.NewWriter(fout))
@@ -32,8 +41,10 @@ func main() {
 		}
 		check(err)
 		h := sha256.New()
-		h.Write([]byte(record[1]))
-		record[1] = string(base64.StdEncoding.EncodeToString(h.Sum(nil)))
+		for _, c := range columns {
+			h.Write([]byte(salt + record[c]))
+			record[c] = string(base64.StdEncoding.EncodeToString(h.Sum(nil)))
+		}
 		w.Write(record)
 		if err := w.Error(); err != nil {
 			log.Fatalln("error writing csv:", err)
