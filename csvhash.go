@@ -17,7 +17,6 @@ func check(e error) {
 }
 
 func main() {
-	salt := "This is salt"
 	columns := []int{}
 	switch fileType := os.Args[1]; fileType {
 	case "csv3":
@@ -27,9 +26,10 @@ func main() {
 	default:
 		columns = []int{2}
 	}
-	fin, err := os.Open(os.Args[2])
+	salt := os.Args[2]
+	fin, err := os.Open(os.Args[3])
 	check(err)
-	fout, err := os.Create(os.Args[3])
+	fout, err := os.Create(os.Args[4])
 	check(err)
 	r := csv.NewReader(bufio.NewReader(fin))
 	w := csv.NewWriter(bufio.NewWriter(fout))
